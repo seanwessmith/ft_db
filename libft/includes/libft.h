@@ -35,6 +35,11 @@
 # include <stdarg.h>
 # include <wchar.h>
 
+typedef struct		s_db
+{
+	int				query_type;
+}					t_db;
+
 typedef struct		s_lemin
 {
 	int				start;

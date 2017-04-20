@@ -2,22 +2,38 @@
 
 #include "libft.h"
 
-int		q_type(char *q_type, char *input)
+char	*ft_strfind(char *input, int w_count)
 {
-	while (*q_type)
+	char	*ret;
+	int		i;
+
+	i = 0;
+	while (w_count > 1 && *input)
 	{
-		if (*q_type != *input)
-			return (0);
+		if (*input == ' ')
+			w_count--;
 		input++;
-		q_type++;
 	}
-	return (1);
+	while (input[i] != ' ' && input[i])
+		i++;
+	ret = (char *)ft_memalloc(sizeof(char) * i);
+	i = 0;
+	while ((ret[i] = *input))
+	{
+		if (*(input + 1) == ' ' || *(input + 1) == '\0')
+			return (ret);
+		i++;
+		input++;
+	}
+	return (NULL);
 }
 
-void	create_query(char *line)
+void	create_query(char *line, t_db *db)
 {
-	line = NULL;
-	write(0, "create\n", 7);
+	if (ft_strequ(ft_strfind(line, 2), "database"))
+		create_database(line, db);
+	else if (ft_strequ(ft_strfind(line, 2), "table"))
+		create_table(line, db);
 }
 
 void	insert_query(char *line)
@@ -40,24 +56,28 @@ void	select_query(char *line)
 
 }
 
-void	read_input()
+void	read_input(t_db *db)
 {
 	char	*line;
 
+	db = NULL;
 	while (get_next_line(0, &line) == 1)
 	{
-		if (q_type("create", line))
-			create_query(line);
-		else if (q_type("insert", line))
+		if (ft_strequ(ft_strfind(line, 1), "create"))
+			create_query(line, db);
+		else if (ft_strequ(ft_strfind(line, 1), "insert"))
 			insert_query(line);
-		else if (q_type("delete", line))
+		else if (ft_strequ(ft_strfind(line, 1), "delete"))
 			delete_query(line);
-		else if (q_type("select", line))
+		else if (ft_strequ(ft_strfind(line, 1), "select"))
 			select_query(line);
 	}
 }
 
 int		main()
 {
-	read_input();
+	t_db	*db;
+
+	db = (t_db *)ft_memalloc(sizeof(db));
+	read_input(db);
 }
