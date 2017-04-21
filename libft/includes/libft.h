@@ -35,10 +35,20 @@
 # include <stdarg.h>
 # include <wchar.h>
 
-typedef struct		s_db
+typedef struct		s_table
 {
-	int				query_type;
-}					t_db;
+	char			*name;
+	int				column_count;
+	char			**columns;
+	int				*column_type;
+	int				*column_length;
+}					t_table;
+
+typedef struct		s_apple
+{
+	char			*db_name;
+	t_table			*table;
+}					t_apple;
 
 typedef struct		s_lemin
 {
@@ -93,6 +103,7 @@ typedef struct		s_algo {
 	va_list			ap;
 }					t_algo;
 
+int					*ft_realloc_int(int *ptr, size_t size);
 int					*ft_intrealloc(int *arr, size_t size);
 int					find_path(t_lemin *lemin, int start);
 int					solve(t_lemin *lemin);

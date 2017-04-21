@@ -118,6 +118,7 @@ C_FILES += ft_strisdigit.c \
 		   ft_printf.c \
 		   ft_strupper.c \
 		   ft_strlower.c \
+		   ft_realloc_int.c \
 
 # get_next_line
 C_FILES += get_next_line.c \
