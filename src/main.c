@@ -36,7 +36,7 @@ void	create_database(char *line, t_apple *apple)
 
 int		parse_col_type(char *type)
 {
-	if (type && ft_strncmp(type, "VARCHAR", 7) == 0)
+	if (ft_strncmp(type, "VARCHAR", 7) == 0)
 		return (1);
 	return (-1);
 }
@@ -46,24 +46,25 @@ int		parse_col_length(char *type)
 	int		ret;
 
 	ret = 0;
-	while (type && *(type - 1) != '(')
+	while (*(type - 1) != '(' && *type)
 		type++;
-	while (type && *type != ')')
+	while (*type != ')' && *type)
 	{
 		ret *= 10;
 		ret += *type - '0';
 		type++;
 	}
-	return (type && (*type == ')' || *type == '\0') && ret != 0) ? (ret) : (-1);
+	return ((*type == ')' || *type == '\0') && ret != 0) ? (ret) : (-1);
 }
 
 int		parse_columns(char **line, t_table *table)
 {
 	(*line) += 2;
+	printf("line: %s\n", (*line));
 	table->column_type = ft_realloc_int(table->column_type, table->column_count);
 	table->column_length = ft_realloc_int(table->column_length, table->column_count);
 	table->columns[table->column_count] = ft_strfind(*(line), 1);
-	table->column_length[table->column_count] = parse_col_length(ft_strfind(*line, 2));
+	table->column_length[table->column_count] = parse_col_length(ft_strfind(*(line), 2));
 	table->column_type[table->column_count] = parse_col_type(ft_strfind(*line, 2));
 	table->column_count++;
 	printf("col name = %s\n", table->columns[table->column_count - 1]);
@@ -86,7 +87,7 @@ void	create_table(char *line, t_table *table)
 	table->columns = (char **)ft_memalloc(sizeof(char *));
 	table->columns[0] = (char *)ft_memalloc(sizeof(char));
 	printf("table_name = %s\n", table->name);
-	while (*line && *line != '(')
+	while (*line != '(')
 		line++;
 	while (parse_columns(&line, table) == 1)
 		table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
