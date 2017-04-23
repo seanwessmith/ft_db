@@ -34,6 +34,9 @@
 # include <unistd.h>
 # include <stdarg.h>
 # include <wchar.h>
+# include <dirent.h>
+# include <sys/stat.h>
+# include <sys/types.h>
 
 typedef struct		s_table
 {
@@ -49,26 +52,6 @@ typedef struct		s_apple
 	char			*db_name;
 	t_table			*table;
 }					t_apple;
-
-typedef struct		s_lemin
-{
-	int				start;
-	int				end;
-	int				startend;
-	int				ant_count;
-	int				**ants;
-	int				r_ct;
-	char			**r_names;
-	int				**rooms;
-	int				t_ct;
-	int				**tubes;
-	int				finished;
-	int				print_colors;
-	int				print_moves;
-	int				moves;
-	int				print_ants;
-	int				print_rooms;
-}					t_lemin;
 
 typedef struct		s_gnl
 {
@@ -105,19 +88,6 @@ typedef struct		s_algo {
 
 int					*ft_realloc_int(int *ptr, size_t size);
 int					*ft_intrealloc(int *arr, size_t size);
-int					find_path(t_lemin *lemin, int start);
-int					solve(t_lemin *lemin);
-void				room_costs(t_lemin *lemin);
-void				process_flags(int ac, char **av, t_lemin *lemin);
-int					add_tube(t_lemin *lemin, char *a_tube, char *b_tube);
-int					parse_input(int ac, char **av, t_lemin *lemin);
-int					parse_tubes(char *line, t_lemin *lemin);
-void				parse_rooms(char *line, t_lemin *lemin);
-int					count_nums(char *str);
-void				malloc_tubes(t_lemin *lemin, int count);
-void				malloc_rooms(t_lemin *lemin, int count);
-void				parse_hash(char *str, t_lemin *lemin);
-void				init_lemin(t_lemin *lemin, int ant_count, int type);
 int					**ft_dbrealloc(int **ptr, size_t size, size_t size2);
 char				**ft_dbrealloc_chr(char **ptr, size_t size);
 int					get_next_line(int fd, char **line);
