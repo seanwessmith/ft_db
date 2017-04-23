@@ -6,8 +6,8 @@
 
 char	*ft_strfind(char *input, int w_count)
 {
-	char	*ret;
-	int		i;
+    char	*ret;
+    int		i;
 
 	i = 0;
 	while (w_count > 1 && *input)
@@ -22,17 +22,17 @@ char	*ft_strfind(char *input, int w_count)
 	i = 0;
 	while ((ret[i] = *input))
 	{
-		if (*(input + 1) == ' ' || *(input + 1) == '\0')
+        if (*(input + 1) == ' ' || *(input + 1) == '\0')
 			return (ret);
-		i++;
-		input++;
-	}
+        i++;
+        input++;
+    }
 	return (NULL);
 }
 
 void	create_database(char *line, t_apple *apple)
 {
-	apple->db_name = ft_strfind(line, 3);
+    apple->db_name = ft_strfind(line, 3);
 	mkdir(apple->db_name, 0744);
 	printf("db_name = %s\n", apple->db_name);
 }
@@ -131,14 +131,28 @@ void	delete_query(char *line)
 }
 void	select_query(char *line)
 {
-	line = NULL;
+    line = NULL;
 	write(0, "select\n", 7);
 
 }
 
 void	enter_database(char *line, t_apple *apple)
 {
+    DIR     *dir;
 
+    if (ft_strequ(ft_strfind(line, 2), "database")
+            || ft_strequ(ft_strfind(line, 2), "db"))
+    {
+        dir = opendir(ft_strfind(line, 3));
+        if (dir)
+        {
+            apple->db_name = ft_strfind(line, 3);
+            closedir(dir);
+            ft_printf("You have entered into database %s.", apple->db_name);
+        }
+        else
+            ft_printf("The %s database does not exist.", ft_strfind(line, 3));
+    }
 }
 
 void	read_input(t_apple *apple)
@@ -156,7 +170,7 @@ void	read_input(t_apple *apple)
 		else if (ft_strequ(ft_strfind(line, 1), "select"))
 			select_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
-			enter_database(line);
+			enter_database(line, apple);
 	}
 }
 
