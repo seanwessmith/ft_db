@@ -1,6 +1,8 @@
 //FT_DB
 
-#include "../libft/includes/libft.h"
+#include "libft.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 char	*ft_strfind(char *input, int w_count)
 {
@@ -82,27 +84,36 @@ int		parse_columns(char **line, t_table *table)
 
 void	create_table(char *line, t_table *table)
 {
-	table->column_count = 0;
-	table->name = ft_strfind(line, 3);
-	table->columns = (char **)ft_memalloc(sizeof(char *));
-	table->columns[0] = (char *)ft_memalloc(sizeof(char));
-	printf("table_name = %s\n", table->name);
-	while (*line != '(')
-		line++;
-	while (parse_columns(&line, table) == 1)
-		table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
+	if (access(ft_strfind(line, 3), F_OK) != -1)
+	{
+		ft_strfind(line, 3);
+		table->column_count = 0;
+		table->name = ft_strfind(line, 3);
+		table->columns = (char **)ft_memalloc(sizeof(char *));
+		table->columns[0] = (char *)ft_memalloc(sizeof(char));
+		printf("table_name = %s\n", table->name);
+		while (*line != '(')
+			line++;
+		while (parse_columns(&line, table) == 1)
+			table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
+	}
+	else
+		printf("The %s table already exists.", ft_strfind(line, 3));
 }
 
 void	create_query(char *line, t_apple *apple)
 {
+	printf("db_name %s\n", apple->db_name);
 	if (ft_strequ(ft_strfind(line, 2), "database"))
 		create_database(line, apple);
-	else if (ft_strequ(ft_strfind(line, 2), "table"))
+	else if (ft_strequ(ft_strfind(line, 2), "table") && apple->db_name != NULL)
 	{
 		apple->table = (t_table *)ft_memalloc(sizeof(t_table));
 		create_table(line, apple->table);
 		ft_printf("\n%s table created\n", apple->table->name);
 	}
+	else if (ft_strequ(ft_strfind(line, 2), "table"))
+		ft_printf("The table \"%s\" was not created. Must be inside a database first.\n", ft_strfind(line, 3));
 }
 
 void	insert_query(char *line)
@@ -118,7 +129,6 @@ void	delete_query(char *line)
 	write(0, "delete\n", 8);
 
 }
-
 void	select_query(char *line)
 {
 	line = NULL;
@@ -128,27 +138,7 @@ void	select_query(char *line)
 
 void	enter_database(char *line, t_apple *apple)
 {
-	DIR				*dir;
-	struct dirent	*d;
 
-	if (ft_strequ(ft_strfind(line, 2), "database") || ft_strequ(ft_strfind(line, 2), "db"))
-	{
-		dir = opendir(ft_strfind(line, 3));
-		if (dir)
-		{
-			while ((d = readdir(dir)) > 0)
-				if (d->d_name[0] != '.')
-					printf("%s\n", d->d_name);
-			apple->db_name = ft_strdup(ft_strfind(line, 3));
-			closedir(dir);
-			ft_printf("You have entered into database %s.\n", apple->db_name);
-		}
-		else
-		{
-			apple->db_name = ft_strnew(0);
-			ft_printf("The database entered does not exist\n");
-		}
-	}
 }
 
 void	read_input(t_apple *apple)
@@ -166,7 +156,7 @@ void	read_input(t_apple *apple)
 		else if (ft_strequ(ft_strfind(line, 1), "select"))
 			select_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
-			enter_database(line, apple);
+			enter_database(line);
 	}
 }
 
