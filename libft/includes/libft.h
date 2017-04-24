@@ -37,6 +37,8 @@
 # include <dirent.h>
 # include <sys/stat.h>
 # include <sys/types.h>
+# include <stdio.h>
+# include <ftw.h>
 
 typedef struct		s_table
 {

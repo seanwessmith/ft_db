@@ -30,6 +30,19 @@ char	*ft_strfind(char *input, int w_count)
 	return (NULL);
 }
 
+static int rmFiles(const char *dir, const struct stat *sbuf, int type, struct FTW *ftwb)
+{
+	(void)sbuf;
+	(void)type;
+	(void)ftwb;
+	if(remove(dir) < 0)
+	{
+		perror("ERROR: remove");
+		return (-1);
+	}
+	return (0);
+}
+
 void	create_database(char *line, t_apple *apple)
 {
 	apple->db_name = ft_strfind(line, 3);
@@ -101,6 +114,28 @@ void	create_table(char *line, t_table *table)
 		printf("The %s table already exists.", ft_strfind(line, 3));
 }
 
+void	drop_table(char *line, t_apple *apple)
+{
+	(void)line;
+	(void)apple;
+	printf("drop_table\n");
+}
+
+void	drop_database(char *line, t_apple *apple)
+{
+	if (!apple->db_name)
+		printf("Error son, no db selected! Fuck!\n");
+	else if (ft_strequ(ft_strfind(line, 3), apple->db_name))
+	{
+		if (nftw(apple->db_name, rmFiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
+			printf("FACK the shit wasn't delorted!\n");
+		else
+			printf("Deleted yer shit, boss!\n");
+	}
+	else
+		printf("Not a database\n");
+}
+
 void	create_query(char *line, t_apple *apple)
 {
 	printf("db_name %s\n", apple->db_name);
@@ -123,12 +158,21 @@ void	insert_query(char *line)
 
 }
 
-void	delete_query(char *line)
+void	delete_query(char *line, t_apple *apple)
 {
-	line = NULL;
-	write(0, "delete\n", 8);
-
+	(void)line;
+	(void)apple;
 }
+
+void	drop_query(char *line, t_apple *apple)
+{
+	printf("drop_query\n");
+	if (line && ft_strequ(ft_strfind(line, 2), "table"))
+		drop_table(line, apple);
+	else if (line && ft_strequ(ft_strfind(line, 2), "database"))
+		drop_database(line, apple);
+}
+
 void	select_query(char *line)
 {
 	line = NULL;
@@ -138,7 +182,8 @@ void	select_query(char *line)
 
 void	enter_database(char *line, t_apple *apple)
 {
-
+	(void)line;
+	(void)apple;
 }
 
 void	read_input(t_apple *apple)
@@ -152,11 +197,18 @@ void	read_input(t_apple *apple)
 		else if (ft_strequ(ft_strfind(line, 1), "insert"))
 			insert_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "delete"))
-			delete_query(line);
+			delete_query(line, apple);
+		else if (ft_strequ(ft_strfind(line, 1), "drop"))
+			drop_query(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "select"))
 			select_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
-			enter_database(line);
+			enter_database(line, apple);
+		else if (ft_strequ(ft_strfind(line, 1), "exit"))
+		{
+			printf("Thank you for using STDB\n");
+			exit(1);
+		}
 	}
 }
 
