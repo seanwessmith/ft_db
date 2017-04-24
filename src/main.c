@@ -30,6 +30,19 @@ char	*ft_strfind(char *input, int w_count)
 	return (NULL);
 }
 
+static int rmFiles(const char *dir, const struct stat *sbuf, int type, struct FTW *ftwb)
+{
+	(void)sbuf;
+	(void)type;
+	(void)ftwb;
+	if(remove(dir) < 0)
+	{
+		perror("ERROR: remove");
+		return (-1);
+	}
+	return (0);
+}
+
 void	create_database(char *line, t_apple *apple)
 {
     apple->db_name = ft_strfind(line, 3);
@@ -98,7 +111,55 @@ void	create_table(char *line, t_table *table)
 			table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
 	}
 	else
-		printf("The %s table already exists.", ft_strfind(line, 3));
+		printf("The %s table already exists.\n", ft_strfind(line, 3));
+}
+
+int	check_table(char *line,t_apple *apple)
+{
+	char *table;
+
+	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strjoin(apple->db_name, "/");
+	table = ft_strjoin(table, ft_strfind(line, 3));
+
+
+	if (access(table, F_OK) != -1)
+		return (1);
+	else
+		return (-1);
+}
+
+void	drop_table(char *line, t_apple *apple)
+{
+	int ret;
+	char *table;
+
+	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strjoin(apple->db_name, "/");
+	table = ft_strjoin(table, ft_strfind(line, 3));
+
+	ret = remove(table);
+	printf("ret:%d\n", ret);
+
+	if (ret == 0)
+		printf("Table delete successfully\n");
+	else
+		printf("Failed to delete table");
+}
+
+void	drop_database(char *line, t_apple *apple)
+{
+	if (!apple->db_name)
+		printf("Error son, no db selected! Fuck!\n");
+	else if (ft_strequ(ft_strfind(line, 3), apple->db_name))
+	{
+		if (nftw(apple->db_name, rmFiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
+			printf("FACK the shit wasn't delorted!\n");
+		else
+			printf("Deleted yer shit, boss!\n");
+	}
+	else
+		printf("Not a database\n");
 }
 
 void	create_query(char *line, t_apple *apple)
@@ -123,12 +184,30 @@ void	insert_query(char *line)
 
 }
 
-void	delete_query(char *line)
+void	delete_query(char *line, t_apple *apple)
 {
-	line = NULL;
-	write(0, "delete\n", 8);
-
+	(void)line;
+	(void)apple;
 }
+
+void	drop_query(char *line, t_apple *apple)
+{
+	if (line && ft_strequ(ft_strfind(line, 2), "table"))
+	{
+		if (!apple->db_name)
+			printf("No db selected\n");
+		else
+		{
+			if (check_table(line, apple))
+				drop_table(line, apple);
+			else
+				printf("Table not found\n");
+		}
+	}
+	else if (line && ft_strequ(ft_strfind(line, 2), "database"))
+		drop_database(line, apple);
+}
+
 void	select_query(char *line)
 {
     line = NULL;
@@ -148,10 +227,10 @@ void	enter_database(char *line, t_apple *apple)
         {
             apple->db_name = ft_strfind(line, 3);
             closedir(dir);
-            ft_printf("You have entered into database %s.", apple->db_name);
+            ft_printf("You have entered into database %s.\n", apple->db_name);
         }
         else
-            ft_printf("The %s database does not exist.", ft_strfind(line, 3));
+            ft_printf("The %s database does not exist.\n", ft_strfind(line, 3));
     }
 }
 
@@ -166,11 +245,18 @@ void	read_input(t_apple *apple)
 		else if (ft_strequ(ft_strfind(line, 1), "insert"))
 			insert_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "delete"))
-			delete_query(line);
+			delete_query(line, apple);
+		else if (ft_strequ(ft_strfind(line, 1), "drop"))
+			drop_query(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "select"))
 			select_query(line);
 		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
 			enter_database(line, apple);
+		else if (ft_strequ(ft_strfind(line, 1), "exit"))
+		{
+			printf("Thank you for using STDB\n");
+			exit(1);
+    }
 	}
 }
 
