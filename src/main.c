@@ -111,14 +111,40 @@ void	create_table(char *line, t_table *table)
 			table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
 	}
 	else
-		printf("The %s table already exists.", ft_strfind(line, 3));
+		printf("The %s table already exists.\n", ft_strfind(line, 3));
+}
+
+int	check_table(char *line,t_apple *apple)
+{
+	char *table;
+
+	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strjoin(apple->db_name, "/");
+	table = ft_strjoin(table, ft_strfind(line, 3));
+
+
+	if (access(table, F_OK) != -1)
+		return (1);
+	else
+		return (-1);
 }
 
 void	drop_table(char *line, t_apple *apple)
 {
-	(void)line;
-	(void)apple;
-	printf("drop_table\n");
+	int ret;
+	char *table;
+
+	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strjoin(apple->db_name, "/");
+	table = ft_strjoin(table, ft_strfind(line, 3));
+
+	ret = remove(table);
+	printf("ret:%d\n", ret);
+
+	if (ret == 0)
+		printf("Table delete successfully\n");
+	else
+		printf("Failed to delete table");
 }
 
 void	drop_database(char *line, t_apple *apple)
@@ -166,9 +192,18 @@ void	delete_query(char *line, t_apple *apple)
 
 void	drop_query(char *line, t_apple *apple)
 {
-	printf("drop_query\n");
 	if (line && ft_strequ(ft_strfind(line, 2), "table"))
-		drop_table(line, apple);
+	{
+		if (!apple->db_name)
+			printf("No db selected\n");
+		else
+		{
+			if (check_table(line, apple))
+				drop_table(line, apple);
+			else
+				printf("Table not found\n");
+		}
+	}
 	else if (line && ft_strequ(ft_strfind(line, 2), "database"))
 		drop_database(line, apple);
 }
