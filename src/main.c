@@ -114,14 +114,13 @@ void	create_table(char *line, t_table *table)
 		printf("The %s table already exists.\n", ft_strfind(line, 3));
 }
 
-int	check_table(char *line,t_apple *apple)
+int	check_table(char *line, t_apple *apple)
 {
 	char *table;
 
-	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(line + 2));
 	table = ft_strjoin(apple->db_name, "/");
-	table = ft_strjoin(table, ft_strfind(line, 3));
-
+	table = ft_strjoin(table, line);
 
 	if (access(table, F_OK) != -1)
 		return (1);
@@ -194,11 +193,11 @@ void	drop_query(char *line, t_apple *apple)
 {
 	if (line && ft_strequ(ft_strfind(line, 2), "table"))
 	{
-		if (!apple->db_name)
+		if (apple->db_name)
 			printf("No db selected\n");
 		else
 		{
-			if (check_table(line, apple))
+			if (check_table(ft_strfind(line, 3), apple))
 				drop_table(line, apple);
 			else
 				printf("Table not found\n");
@@ -208,11 +207,133 @@ void	drop_query(char *line, t_apple *apple)
 		drop_database(line, apple);
 }
 
-void	select_query(char *line)
+int		open_table(char *table, t_apple *apple)
 {
-    line = NULL;
-	write(0, "select\n", 7);
+	int		fd;
+	char	*line;
+	char	*path;
 
+	line = NULL;
+	fd = 0;
+	if (!apple->table)
+		printf("No table selected.\n");
+	else
+	{
+		path = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(table) + 2);
+		path = ft_strjoin(apple->db_name, "/");
+		path = ft_strjoin(path, table);
+
+		fd = open(path, O_RDONLY);
+	}
+	return (fd);
+}
+
+int		column_count(char *line)
+{
+	int column_count;
+	int i;
+
+	i = 0;
+	column_count = 0;
+	while (line[i] != '\0')
+	{
+		if (line[i] == ')' && (line[i + 1] == ',' || line[i + 1] == ']'))
+			column_count++;
+		i++;
+	}
+	return (column_count);
+}
+
+void	select_all_from_table(char *table, t_apple *apple)
+{
+	int fd;
+	char *line;
+	size_t line_count;
+
+	line_count = 0;
+	line = NULL;
+	fd = open_table(table, apple);
+	while(get_next_line(fd, &line))
+	{
+		line_count++;
+		if (line_count > 1)
+			printf("%s\n",line);
+		free(line);
+	}
+	fd = close(fd);
+}
+
+void	select_columns_from_table(char *line, char *table, t_apple *apple)
+{
+	printf("select columns from table\n");
+
+	int 	fd;
+	char	*line2;
+	size_t	line_count;
+	char	column[50];
+
+	fd = open_table(table, apple);
+	line_count = 0;
+	get_next_line(fd, &line2);
+
+	printf("%d\n",column_count(line));
+	int which_columns[column_count(line2)];
+
+	int x;
+	int y;
+	x = 0;
+	while(line2[x] != '\0')
+	{
+		if (line2[x] == '(')
+		{
+			x++;
+			y = 0;
+			while(line2[x] != ',')
+			{
+				column[y] = line2[x];
+				y++;
+				x++;
+			}
+			column[y] = '\0';
+			printf("column:%s\n",column);
+		}
+		x++;
+	}
+
+	while(get_next_line(fd, &line2))
+	{
+		line_count++;
+		if (line_count > 1)
+		{
+
+		}
+		free(line2);
+	}
+	fd = close(fd);
+}
+
+void	select_query(char *line, t_apple *apple)
+{
+	int i;
+
+	i = 1;
+
+	while (!ft_strequ(ft_strfind(line, i), "from"))
+		i++;
+	i++;
+	if (!apple->db_name)
+		printf("No Database selected.\n");
+    else if (check_table(ft_strfind(line, i), apple) == 1)
+    {
+    	if (ft_strequ(ft_strfind(line, 2), "*"))
+    		select_all_from_table(ft_strfind(line, i), apple);
+    	else
+    		select_columns_from_table(line, ft_strfind(line, i), apple);
+    }
+    else
+    {
+    	printf("Table not found.\n");
+    }
 }
 
 void	enter_database(char *line, t_apple *apple)
@@ -237,10 +358,26 @@ void	enter_database(char *line, t_apple *apple)
 void	read_input(t_apple *apple)
 {
 	char	*line;
+	char	*prev;
+	int		i;
 
+	prev = NULL;
 	while (get_next_line(0, &line) == 1)
 	{
-		if (ft_strequ(ft_strfind(line, 1), "create"))
+		i = 0;
+		while (line[i] != '\0')
+		{
+			if (line[i] == '\33')
+				if (line[i+2] == 'A')
+				{
+					printf("%s\n", prev);
+					line = prev;
+				}
+			i++;
+		}
+		if (ft_strequ(ft_strfind(line, 1), "\027[A"))
+			printf("%s\n",line);
+		else if (ft_strequ(ft_strfind(line, 1), "create"))
 			create_query(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "insert"))
 			insert_query(line);
@@ -249,14 +386,16 @@ void	read_input(t_apple *apple)
 		else if (ft_strequ(ft_strfind(line, 1), "drop"))
 			drop_query(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "select"))
-			select_query(line);
+			select_query(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
 			enter_database(line, apple);
 		else if (ft_strequ(ft_strfind(line, 1), "exit"))
 		{
 			printf("Thank you for using STDB\n");
 			exit(1);
-    }
+    	}
+    	prev = ft_strnew(ft_strlen(line)+ 1);
+    	prev = line;
 	}
 }
 
