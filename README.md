@@ -1,6 +1,6 @@
 # ft_db
 #### ft_db is a Relational Database Management System created using the C programming language
-#### ft_db can handle multiple queries:
+#### ft_db can handle the following queries:
 * Insert statements
 * Creation of databases **"CREATE DATABASE twitter"**
 * Creation of tables **"CREATE TABLE tweets(id int, time DATETIME, text VARCHAR(300), username varchar(100))"**
