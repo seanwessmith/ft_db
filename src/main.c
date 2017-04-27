@@ -1,35 +1,17 @@
-//FT_DB
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ssmith <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/04/27 09:58:37 by ssmith            #+#    #+#             */
+/*   Updated: 2017/04/27 09:58:39 by ssmith           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "libft.h"
-#include <sys/stat.h>
-#include <sys/types.h>
-
-char	*ft_strfind(char *input, int w_count)
-{
-    char	*ret;
-    int		i;
-
-    ret = ft_strnew(0);
-	i = 0;
-	while (w_count > 1 && *input)
-	{
-		if (*input == ' ')
-			w_count--;
-		input++;
-	}
-	while (input[i] && input[i] != ' ')
-		i++;
-	ret = (char *)ft_memalloc(sizeof(char) * i);
-	i = 0;
-	while ((ret[i] = *input) && *input)
-	{
-        if (*(input + 1) == ' ' || *(input + 1) == '\0')
-            return (ret);
-        i++;
-        input++;
-    }
-	return (NULL);
-}
+#include "db.h"
 
 int     ft_colfind(char *input, int w_count)
 {
@@ -56,19 +38,6 @@ int     ft_colfind(char *input, int w_count)
         input++;
     }
 	return (-1);
-}
-
-static int rmFiles(const char *dir, const struct stat *sbuf, int type, struct FTW *ftwb)
-{
-	(void)sbuf;
-	(void)type;
-	(void)ftwb;
-	if(remove(dir) < 0)
-	{
-		perror("ERROR: remove");
-		return (-1);
-	}
-	return (0);
 }
 
 void	create_database(char *line, t_apple *apple)
@@ -195,39 +164,6 @@ int	check_table(char *line, t_apple *apple)
 		return (-1);
 }
 
-void	drop_table(char *line, t_apple *apple)
-{
-	int ret;
-	char *table;
-
-	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
-	table = ft_strjoin(apple->db_name, "/");
-	table = ft_strjoin(table, ft_strfind(line, 3));
-
-	ret = remove(table);
-	printf("ret:%d\n", ret);
-
-	if (ret == 0)
-		printf("Table delete successfully\n");
-	else
-		printf("Failed to delete table");
-}
-
-void	drop_database(char *line, t_apple *apple)
-{
-	if (!apple->db_name)
-		printf("Error son, no db selected! Fuck!\n");
-	else if (ft_strequ(ft_strupper(ft_strfind(line, 3)), apple->db_name))
-	{
-		if (nftw(apple->db_name, rmFiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
-			printf("FACK the shit wasn't delorted!\n");
-		else
-			printf("Deleted yer shit, boss!\n");
-	}
-	else
-		printf("Not a database\n");
-}
-
 void	create_query(char *line, t_apple *apple)
 {
 	if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE"))
@@ -244,48 +180,6 @@ void	create_query(char *line, t_apple *apple)
 		ft_printf("The table \"%s\" was not created. Must be inside a database first.\n", ft_strfind(line, 3));
 }
 
-int		parse_insert_string(char **ret, char **line, int col, t_table *table)
-{
-	int		i;
-	int		flag;
-
-	i = 0;
-	flag = 0;
-	*ret = ft_strjoin(*ret, "(");
-	while (*(*line - 1) != '\"')
-		line++;
-	while (*(*line) && *(*line) != '\"' && *(*line) != ')' && i++ <= table->column_length[col])
-	{
-		*ret = ft_chrcat(*ret, *(*line));
-		(*line)++;
-	}
-	if (i > table->column_length[col])
-	{
-		ft_printf("String would be truncated. The statement has been terminated\n");
-		return (-1);
-	}
-	*ret = ft_strjoin(*ret, ")");
-	return (1);
-}
-
-int		parse_insert_int(char **ret, char **line)
-{
-	int		flag;
-
-	flag = 0;
-	*ret = ft_strjoin(*ret, "(");
-	while (*(*line) && *(*line) != ',' && *(*line) != ')' && flag == 0)
-	{
-		if (*(*line) < '0' || *(*line) > '9')
-			return (-1);
-		else
-			*ret = ft_chrcat(*ret, *(*line));
-		(*line)++;
-	}
-	*ret = ft_strjoin(*ret, ")");
-	return (1);
-}
-
 char	*next_word(char *line)
 {
 	while (*line == ' ' || *line == ',' || *line == '\"')
@@ -293,56 +187,6 @@ char	*next_word(char *line)
 	return (line);
 }
 
-char    *parse_insert_record(char *line, t_table *table)
-{
-    int     i;
-	int		flag;
-	char	*ret;
-
-    i = -1;
-	flag = 0;
-    ret = ft_strnew(0);
-	while (++i < table->column_count && flag == 0)
-    {
-		if (i > 0)
-			ret = ft_strjoin(ret, ", ");
-		if (table->column_type[i] == 1)
-		{
-			if (parse_insert_string(&ret, &line, i, table) == -1)
-				return (NULL);
-		}
-		else if (table->column_type[i] == 2)
-			if (parse_insert_int(&ret, &line) == -1)
-				return (NULL);
-		line = next_word(line);
-    }
-	return (ret);
-}
-
-char    *parse_insert(char *line, char *file, t_table *table)
-{
-	int		fd;
-    char    *s;
-
-    while (*line && *line != '(')
-        line++;
-	line++;
-	fd = open(file, O_WRONLY | O_APPEND);
-    while (*line)
-    {
-        if (*line == '(')
-        {
-			line++;
-    		s = ft_strnew(0);
-            s = ft_strjoin(s, "[");
-            s = ft_strjoin(s, parse_insert_record(line, table));
-            s = ft_strjoin(s, "]\n");
-			write(fd, s, ft_strlen(s));
-        }
-        line++;
-    }
-    return (NULL);
-}
 
 void    parse_table_header(char *file, t_table *table)
 {
@@ -387,141 +231,6 @@ int		open_table(char *table, t_apple *apple)
 	}
 	return (fd);
 }
-
-int		column_count(char *line)
-{
-	int column_count;
-	int i;
-
-	i = 0;
-	column_count = 0;
-	while (line[i] != '\0')
-	{
-		if (line[i] == ')' && (line[i + 1] == ',' || line[i + 1] == ']'))
-			column_count++;
-		i++;
-	}
-	return (column_count);
-}
-
-void	select_all_from_table(char *table, t_apple *apple)
-{
-	int fd;
-	char *line;
-	size_t line_count;
-
-	line_count = 0;
-	line = NULL;
-	fd = open_table(table, apple);
-	while(get_next_line(fd, &line))
-	{
-		line_count++;
-		if (line_count > 1)
-			printf("%s\n",line);
-		free(line);
-	}
-	fd = close(fd);
-}
-
-void	select_columns_from_table(char *line, char *table, t_apple *apple)
-{
-	printf("select columns from table\n");
-
-	int 	fd;
-	char	*line2;
-	size_t	line_count;
-	char	column[50];
-
-	fd = open_table(table, apple);
-	line_count = 0;
-	get_next_line(fd, &line2);
-
-	printf("%d\n",column_count(line));
-	int which_columns[column_count(line2)];
-
-	(void)which_columns;
-	int x;
-	int y;
-	x = 0;
-	while(line2[x] != '\0')
-	{
-		if (line2[x] == '(')
-		{
-			x++;
-			y = 0;
-			while(line2[x] != ',')
-			{
-				column[y] = line2[x];
-				y++;
-				x++;
-			}
-			column[y] = '\0';
-			printf("column:%s\n",column);
-		}
-		x++;
-	}
-
-	while(get_next_line(fd, &line2))
-	{
-		line_count++;
-		if (line_count > 1)
-		{
-
-		}
-		free(line2);
-	}
-	fd = close(fd);
-}
-
-void	insert_query(char *line, t_apple *apple)
-{
-    char    *file;
-
-    if (apple->db_name)
-    {
-        apple->table = (t_table *)malloc(sizeof(t_table));
-        apple->table->name = ft_strfind(line, 3);
-        file = apple->db_name;
-        file = ft_strjoin(file, "/");
-        file = ft_strjoin(file, apple->table->name);
-        if (access(file, F_OK) != -1)
-        {
-            parse_table_header(file, apple->table);
-            parse_insert(line, file, apple->table);
-        }
-        else
-            printf("The %s table doesn't exist\n", apple->table->name);
-        printf("Records were successfully inserted into the %s table.\n", apple->table->name);
-    }
-    else
-        printf("Records were not inserted. Must enter database first\n");
-}
-
-void	delete_query(char *line)
-{
-	line = NULL;
-	write(0, "delete\n", 8);
-
-}
-
-void	drop_query(char *line, t_apple *apple)
-{
-	if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "TABLE"))
-	{
-		if (apple->db_name)
-			printf("No db selected\n");
-		else
-		{
-			if (check_table(ft_strfind(line, 3), apple))
-				drop_table(line, apple);
-			else
-				printf("Table not found\n");
-		}
-	}
-	else if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE"))
-		drop_database(line, apple);
-}
-
 
 void	select_query(char *line, t_apple *apple)
 {
