@@ -217,7 +217,7 @@ void	drop_database(char *line, t_apple *apple)
 {
 	if (!apple->db_name)
 		printf("Error son, no db selected! Fuck!\n");
-	else if (ft_strequ(ft_strfind(line, 3), apple->db_name))
+	else if (ft_strequ(ft_strupper(ft_strfind(line, 3)), apple->db_name))
 	{
 		if (nftw(apple->db_name, rmFiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
 			printf("FACK the shit wasn't delorted!\n");
@@ -230,9 +230,9 @@ void	drop_database(char *line, t_apple *apple)
 
 void	create_query(char *line, t_apple *apple)
 {
-	if (ft_strequ(ft_strfind(line, 2), "database"))
+	if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE"))
 		create_database(line, apple);
-	else if (ft_strequ(ft_strfind(line, 2), "table") && apple->db_name != NULL)
+	else if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "TABLE") && apple->db_name != NULL)
 	{
 		apple->table = (t_table *)ft_memalloc(sizeof(t_table));
 		if (parse_table(line, apple->table) == 1)
@@ -240,7 +240,7 @@ void	create_query(char *line, t_apple *apple)
         else
             ft_printf("The %s table was not created.\n", ft_strfind(line, 3));
 	}
-	else if (ft_strequ(ft_strfind(line, 2), "table"))
+	else if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "TABLE"))
 		ft_printf("The table \"%s\" was not created. Must be inside a database first.\n", ft_strfind(line, 3));
 }
 
@@ -490,10 +490,11 @@ void	insert_query(char *line, t_apple *apple)
             parse_insert(line, file, apple->table);
         }
         else
-            ft_printf("The %s table doesn't exist\n", apple->table->name);
+            printf("The %s table doesn't exist\n", apple->table->name);
+        printf("Records were successfully inserted into the %s table.\n", apple->table->name);
     }
     else
-        ft_printf("Records were not inserted. Must enter database first\n");
+        printf("Records were not inserted. Must enter database first\n");
 }
 
 void	delete_query(char *line)
@@ -505,7 +506,7 @@ void	delete_query(char *line)
 
 void	drop_query(char *line, t_apple *apple)
 {
-	if (line && ft_strequ(ft_strfind(line, 2), "table"))
+	if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "TABLE"))
 	{
 		if (apple->db_name)
 			printf("No db selected\n");
@@ -517,7 +518,7 @@ void	drop_query(char *line, t_apple *apple)
 				printf("Table not found\n");
 		}
 	}
-	else if (line && ft_strequ(ft_strfind(line, 2), "database"))
+	else if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE"))
 		drop_database(line, apple);
 }
 
@@ -528,7 +529,7 @@ void	select_query(char *line, t_apple *apple)
 
 	i = 1;
 
-	while (!ft_strequ(ft_strfind(line, i), "from"))
+	while (!ft_strequ(ft_strupper(ft_strfind(line, i)), "FROM"))
 		i++;
 	i++;
 	if (!apple->db_name)
@@ -550,8 +551,8 @@ void	enter_database(char *line, t_apple *apple)
 {
     DIR     *dir;
 
-    if (ft_strequ(ft_strfind(line, 2), "database")
-            || ft_strequ(ft_strfind(line, 2), "db"))
+    if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE")
+            || ft_strequ(ft_strupper(ft_strfind(line, 2)), "DB"))
     {
         dir = opendir(ft_strfind(line, 3));
         if (dir)
@@ -587,19 +588,20 @@ void	read_input(t_apple *apple)
 		}
 		if (ft_strequ(ft_strfind(line, 1), "\027[A"))
 			printf("%s\n",line);
-		else if (ft_strequ(ft_strfind(line, 1), "create"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "CREATE"))
 			create_query(line, apple);
-		else if (ft_strequ(ft_strfind(line, 1), "insert"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "INSERT"))
 			insert_query(line, apple);
-		else if (ft_strequ(ft_strfind(line, 1), "delete"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DELETE"))
 			delete_query(line);
-		else if (ft_strequ(ft_strfind(line, 1), "drop"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DROP"))
 			drop_query(line, apple);
-		else if (ft_strequ(ft_strfind(line, 1), "select"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "SELECT"))
 			select_query(line, apple);
-		else if (ft_strequ(ft_strfind(line, 1), "enter") || ft_strequ(ft_strfind(line, 1), "cd"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "ENTER") ||
+				ft_strequ(ft_strupper(ft_strfind(line, 1)), "CD"))
 			enter_database(line, apple);
-		else if (ft_strequ(ft_strfind(line, 1), "exit"))
+		else if (ft_strequ(ft_strupper(line), "EXIT"))
 		{
 			printf("Thank you for using STDB\n");
 			exit(1);
