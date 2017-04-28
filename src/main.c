@@ -318,7 +318,7 @@ void	read_input(t_apple *apple)
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "INSERT"))
 			insert_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DELETE"))
-			delete_query(line);
+			delete_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DROP"))
 			drop_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "SELECT"))
