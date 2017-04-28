@@ -6,12 +6,15 @@
 #    By: ssmith <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/02/27 03:44:00 by ssmith            #+#    #+#              #
-#    Updated: 2017/03/08 13:14:01 by ssmith           ###   ########.fr        #
+#    Updated: 2017/04/27 18:54:43 by ssmith           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 NAME	=	ft_db
 
-SRC	=		main.c \
+SRC		=	main.c \
+			inserters.c \
+			droppers_deleters.c \
+			selecters.c \
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 CC		= gcc

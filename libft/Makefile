@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    makefile                                           :+:      :+:    :+:    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: ssmith <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/07 08:55:56 by ssmith            #+#    #+#              #
-#    Updated: 2017/03/24 14:54:29 by ssmith           ###   ########.fr        #
+#    Updated: 2017/04/27 14:11:36 by ssmith           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -119,6 +119,7 @@ C_FILES += ft_strisdigit.c \
 		   ft_strupper.c \
 		   ft_strlower.c \
 		   ft_realloc_int.c \
+		   ft_strcstr.c \
 
 # get_next_line
 C_FILES += get_next_line.c \

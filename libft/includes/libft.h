@@ -6,7 +6,7 @@
 /*   By: ssmith <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/02 15:00:25 by ssmith            #+#    #+#             */
-/*   Updated: 2017/03/24 17:17:46 by ssmith           ###   ########.fr       */
+/*   Updated: 2017/04/27 14:16:25 by ssmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@
 # include <stdarg.h>
 # include <wchar.h>
 # include <dirent.h>
-# include <sys/stat.h>
-# include <sys/types.h>
 # include <stdio.h>
 # include <ftw.h>
 
@@ -88,6 +86,7 @@ typedef struct		s_algo {
 	va_list			ap;
 }					t_algo;
 
+char				*ft_strcstr(const char *s, int c, int c2);
 int					*ft_realloc_int(int *ptr, size_t size);
 int					*ft_intrealloc(int *arr, size_t size);
 int					**ft_dbrealloc(int **ptr, size_t size, size_t size2);
