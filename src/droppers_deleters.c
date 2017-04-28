@@ -13,12 +13,12 @@
 #include "libft.h"
 #include "db.h"
 
-char	*ft_strfind(char *input, int w_count)
+char		*ft_strfind(char *input, int w_count)
 {
-    char	*ret;
-    int		i;
+	char	*ret;
+	int		i;
 
-    ret = ft_strnew(0);
+	ret = ft_strnew(0);
 	while (*input == ' ')
 		input++;
 	while (*input && w_count > 1)
@@ -34,20 +34,20 @@ char	*ft_strfind(char *input, int w_count)
 	i = 0;
 	while (*input && (ret[i] = *input))
 	{
-        if (*(input + 1) == ' ' || *(input + 1) == '\0')
-   			return (ret);
+		if (*(input + 1) == ' ' || *(input + 1) == '\0')
+			return (ret);
 		i++;
-        input++;
-    }
+		input++;
+	}
 	return (NULL);
 }
 
-static int rmFiles(const char *dir, const struct stat *sbuf, int type, struct FTW *ftwb)
+static int	rmfiles(const char *dir, const struct stat *s, int t, struct FTW *f)
 {
-	(void)sbuf;
-	(void)type;
-	(void)ftwb;
-	if(remove(dir) < 0)
+	(void)s;
+	(void)t;
+	(void)f;
+	if (remove(dir) < 0)
 	{
 		perror("ERROR: remove");
 		return (-1);
@@ -55,15 +55,14 @@ static int rmFiles(const char *dir, const struct stat *sbuf, int type, struct FT
 	return (0);
 }
 
-void	remove_all_table_records(char *table, t_apple *apple)
+void		remove_all_table_records(char *table, t_apple *apple)
 {
 	int		fd;
 	char	*header;
 	char	*line;
-	char 	*create_file;
+	char	*create_file;
 
 	fd = open_table(table, apple);
-
 	get_next_line(fd, &header);
 	if (!header)
 		printf("File error, missing header\n");
@@ -71,16 +70,15 @@ void	remove_all_table_records(char *table, t_apple *apple)
 	{
 		line = ft_strnew(ft_strlen(table) + 4);
 		line = ft_strjoin("1 2 ", table);
-		if(drop_table(line, apple) == -1)
+		if (drop_table(line, apple) == -1)
 			printf("Error clearing table\n");
 		else
 		{
 			fd = close(fd);
-
-			create_file = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(table) + 2);
+			create_file = ft_strnew(ft_strlen(apple->db_name) +
+				ft_strlen(table) + 2);
 			create_file = ft_strjoin(apple->db_name, "/");
 			create_file = ft_strjoin(create_file, table);
-
 			fd = open(create_file, O_CREAT | O_WRONLY, 0744);
 			write(fd, header, ft_strlen(header));
 			fd = close(fd);
@@ -89,46 +87,49 @@ void	remove_all_table_records(char *table, t_apple *apple)
 	}
 }
 
-void	delete_all_records(char *line, t_apple *apple)
+void		delete_all_records(char *line, t_apple *apple)
 {
 	if (ft_strfind(line, 3) && check_table(ft_strfind(line, 3), apple) == 1)
 		remove_all_table_records(ft_strfind(line, 3), apple);
-	else if (ft_strfind(line, 4) && (check_table(ft_strfind(line, 4), apple) == 1))
+	else if (ft_strfind(line, 4) &&
+		(check_table(ft_strfind(line, 4), apple) == 1))
 		remove_all_table_records(ft_strfind(line, 4), apple);
 	else
 		printf("Table not found.\n");
 }
 
-int		drop_table(char *line, t_apple *apple)
+int			drop_table(char *line, t_apple *apple)
 {
 	int		ret;
 	char	*table;
 
-	table = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(ft_strfind(line, 3) + 2));
+	table = ft_strnew(ft_strlen(apple->db_name) +
+		ft_strlen(ft_strfind(line, 3) + 2));
 	table = ft_strjoin(apple->db_name, "/");
 	table = ft_strjoin(table, ft_strfind(line, 3));
 	ret = remove(table);
 	if (ret == 0)
-		return(1);
+		return (1);
 	else
-		return(-1);
+		return (-1);
 }
 
-void	delete_query(char *line, t_apple *apple)
+void		delete_query(char *line, t_apple *apple)
 {
 	if (line && ft_strequ(ft_strfind(line, 2), "*") && !ft_strfind(line, 5))
 		delete_all_records(line, apple);
-	else if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)),"FROM") && !ft_strfind(line, 5))
+	else if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "FROM")
+		&& !ft_strfind(line, 5))
 		delete_all_records(line, apple);
 }
 
-void	drop_database(char *line, t_apple *apple)
+void		drop_database(char *line, t_apple *apple)
 {
 	if (!apple->db_name)
 		printf("No database selected\n");
 	else if (ft_strequ(ft_strupper(ft_strfind(line, 3)), apple->db_name))
 	{
-		if (nftw(apple->db_name, rmFiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
+		if (nftw(apple->db_name, rmfiles, 10, FTW_DEPTH | FTW_MOUNT | FTW_PHYS) < 0)
 			printf("Failed to drop %s\n", apple->db_name);
 		else
 			printf("%s database dropped\n", apple->db_name);
@@ -137,7 +138,7 @@ void	drop_database(char *line, t_apple *apple)
 		printf("Not a database\n");
 }
 
-int	check_table(char *line, t_apple *apple)
+int			check_table(char *line, t_apple *apple)
 {
 	char *table;
 
@@ -150,7 +151,7 @@ int	check_table(char *line, t_apple *apple)
 		return (-1);
 }
 
-void	drop_query(char *line, t_apple *apple)
+void		drop_query(char *line, t_apple *apple)
 {
 	if (line && ft_strequ(ft_strupper(ft_strfind(line, 2)), "TABLE"))
 	{

@@ -15,10 +15,10 @@
 
 int     ft_colfind(char *input, int w_count)
 {
-    char	*ret;
-    int		i;
+	char	*ret;
+	int		i;
 
-    ret = ft_strnew(0);
+	ret = ft_strnew(0);
 	i = 0;
 	while (w_count > 1 && *input)
 	{
