@@ -26,10 +26,11 @@ int		parse_insert(char *line, char *file, t_table *table);
 char    *parse_insert_record(char *line, t_table *table);
 char	*next_word(char *line);
 int		open_table(char *table, t_apple *apple);
-void	drop_table(char *line, t_apple *apple);
+int		drop_table(char *line, t_apple *apple);
 void	drop_database(char *line, t_apple *apple);
+int		check_table(char *line, t_apple *apple);
 void	drop_query(char *line, t_apple *apple);
-void	delete_query(char *line);
+void	delete_query(char *line, t_apple *apple);
 void	insert_query(char *line, t_apple *apple);
 void	select_query(char *line, t_apple *apple);
 
