@@ -60,17 +60,17 @@ int		parse_insert_int(char **ret, char *line)
 	return (1);
 }
 
-char    *parse_insert_record(char *line, t_table *table)
+char	*parse_insert_record(char *line, t_table *table)
 {
 	int		flag;
 	int		i;
 	char	*ret;
 
-    i = -1;
+	i = -1;
 	flag = 0;
-    ret = ft_strnew(0);
+	ret = ft_strnew(0);
 	while (++i < table->column_count && flag == 0)
-    {
+	{
 		if (i > 0)
 			ret = ft_strjoin(ret, ", ");
 		if (table->column_type[i] == 1)
@@ -85,25 +85,25 @@ char    *parse_insert_record(char *line, t_table *table)
 				return (NULL);
 			line = end_int(line);
 		}
-    }
+	}
 	return (ret);
 }
 
 int		parse_insert(char *line, char *file, t_table *table)
 {
 	int		fd;
-    char    *s;
+	char	*s;
 
 	fd = open(file, O_WRONLY | O_APPEND);
-    while (*line)
-    {
+	while (*line)
+	{
 		if (*line == '(')
 		{
 			line++;
 			s = ft_strnew(0);
 			s = ft_strjoin(s, "[");
 			s = ft_strjoin(s, parse_insert_record(line, table));
-	   		if (s == NULL)
+			if (s == NULL)
 				return (-1);
 			s = ft_strjoin(s, "]\n");
 			write(fd, s, ft_strlen(s));
@@ -115,27 +115,26 @@ int		parse_insert(char *line, char *file, t_table *table)
 
 void	insert_query(char *line, t_apple *apple)
 {
-    char    *file;
+	char	*file;
 
-    if (apple->db_name)
-    {
-        apple->table = (t_table *)malloc(sizeof(t_table));
-        apple->table->name = ft_strfind(line, 3);
-        file = apple->db_name;
-        file = ft_strjoin(file, "/");
-        file = ft_strjoin(file, apple->table->name);
+	if (apple->db_name)
+	{
+		apple->table = (t_table *)malloc(sizeof(t_table));
+		apple->table->name = ft_strfind(line, 3);
+		file = apple->db_name;
+		file = ft_strjoin(file, "/");
+		file = ft_strjoin(file, apple->table->name);
 		if (access(file, F_OK) != -1)
-        {
-            parse_table_header(file, apple->table);
-            if (parse_insert(line, file, apple->table) == 1)
-        		printf("Records were successfully inserted into the %s table.\n", apple->table->name);
+		{
+			parse_table_header(file, apple->table);
+			if (parse_insert(line, file, apple->table) == 1)
+				printf("Records were successfully inserted into the %s table.\n", apple->table->name);
 			else
 				printf("Records were NOT inserted. Incorrect query format.\n");
-        }
-        else
-            printf("The %s table doesn't exist\n", apple->table->name);
-    }
-    else
-        printf("Records were not inserted. Must enter database first\n");
+		}
+		else
+			printf("The %s table doesn't exist\n", apple->table->name);
+	}
+	else
+		printf("Records were not inserted. Must enter database first\n");
 }
-
