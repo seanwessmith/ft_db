@@ -13,8 +13,8 @@
 #ifndef LIBFT_H
 # define LIBFT_H
 
+# define BUFF_SIZE 2048
 # define BLANK(ws) (ws=='\t'||ws=='\v'||ws=='\n'||ws=='\f'||ws=='\r'||ws==' ')
-# define BUFF_SIZE 500
 
 # define WHITE    "\x1b[37m"
 # define RED      "\x1b[31m"
@@ -86,6 +86,8 @@ typedef struct		s_algo {
 	va_list			ap;
 }					t_algo;
 
+void                *ft_realloc2(void *src, size_t srcsize, size_t newsize);
+char                *ft_realloc(char *ptr, size_t size);
 void                update_query(char *line, t_apple *apple);
 char				*ft_strcstr(const char *s, int c, int c2);
 int					*ft_realloc_int(int *ptr, size_t size);
