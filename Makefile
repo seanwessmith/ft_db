@@ -13,6 +13,7 @@ NAME	=	ft_db
 
 SRC		=	main.c \
 			inserters.c \
+            updaters.c \
 			droppers_deleters.c \
 			selecters.c \
 

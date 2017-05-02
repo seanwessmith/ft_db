@@ -19,11 +19,16 @@ char	**ft_dbrealloc_chr(char **ptr, size_t size)
 
 	i = 0;
 	ret = (char **)ft_memalloc(sizeof(char *) * size);
-	while (ptr[i] && i < size)
-	{
-		ret[i] = ft_strnew(0);
-		ret[i] = ft_strjoin(ret[i], ptr[i]);
-		i++;
-	}
+	if (ptr)
+    {
+        while (ptr[i] && i < size)
+	    {
+	    	ret[i] = ft_strnew(0);
+	    	ret[i] = ft_strjoin(ret[i], ptr[i]);
+	    	i++;
+	    }
+    }
+    else
+        ret[i] = ft_strnew(0);
 	return (ret);
 }

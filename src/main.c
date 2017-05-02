@@ -6,19 +6,19 @@
 /*   By: ssmith <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/27 09:58:37 by ssmith            #+#    #+#             */
-/*   Updated: 2017/04/27 19:46:15 by ssmith           ###   ########.fr       */
+/*   Updated: 2017/04/27 23:12:30 by ssmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "db.h"
 
-int		ft_colfind(char *input, int w_count)
+char	*parse_col_char(char *input, int w_count)
 {
-	char	*ret;
-	int		i;
+    char	*ret;
+    int		i;
 
-	ret = ft_strnew(0);
+    ret = ft_strnew(0);
 	i = 0;
 	while (w_count > 1 && *input)
 	{
@@ -26,6 +26,7 @@ int		ft_colfind(char *input, int w_count)
 			w_count--;
 		input++;
 	}
+	input++;
 	while (input[i] && input[i] != ' ')
 		i++;
 	ret = (char *)ft_memalloc(sizeof(char) * i);
@@ -33,28 +34,56 @@ int		ft_colfind(char *input, int w_count)
 	while ((ret[i] = *input) && *input)
 	{
 		if (*(input + 1) == ',' || *(input + 1) == ')' || *(input + 1) == '\0')
-			return (ft_atoi(ret));
+			return (ret);
 		i++;
+        input++;
+    }
+	return (NULL);
+}
+
+int     parse_col_int(char *input, int w_count)
+{
+    char	*ret;
+    int		i;
+
+    ret = ft_strnew(0);
+	while (w_count > 1 && *input)
+	{
+		if (*input == ' ')
+			w_count--;
 		input++;
 	}
+    while (*input == '[' || *input == '(')
+        input++;
+	i = 0;
+	while (input[i] && input[i] != ' ')
+		i++;
+	ret = (char *)ft_memalloc(sizeof(char) * i);
+	i = 0;
+	while ((ret[i] = *input) && *input)
+	{
+        if (*(input + 1) == ',' || *(input + 1) == ')' || *(input + 1) == '\0')
+            return (ft_atoi(ret));
+        i++;
+        input++;
+    }
 	return (-1);
 }
 
 void	create_database(char *line, t_apple *apple)
 {
 	DIR		*dir = opendir(ft_strfind(line, 3));
-
 	if (dir)
 		printf("A database already exists with the name %s.\n", ft_strfind(line, 3));
 	else
 	{
-		apple->db_name = ft_strfind(line, 3);
+    	apple->db_name = ft_strfind(line, 3);
 		mkdir(apple->db_name, 0744);
 		ft_printf("You successfully created the %s database.\n", apple->db_name);
 	}
 }
 
-int		parse_col_type(char *type)
+int     parse_col_type(char *type)
 {
 	if (ft_strncmp(type, "VARCHAR", 7) == 0)
 		return (1);
@@ -102,56 +131,56 @@ int		parse_columns(char **line, t_table *table)
 	return (0);
 }
 
-void	write_to_table(t_table *table, int fd)
+void    write_to_table(t_table *table, int fd)
 {
-	char	*s;
-	int		i;
+    char    *s;
+    int     i;
 
-	i = 0;
-	s = ft_strnew(0);
-	s = ft_strjoin(s, "[");
-	while (i < table->column_count)
-	{
-		s = (i > 0) ? ft_strjoin(s, ", (") : ft_strjoin(s, "(");
-		s = ft_strjoin(s, table->columns[i]);
-		s = ft_strjoin(s, ", ");
-		s = ft_strjoin(s, ft_itoa(table->column_type[i]));
-		if (table->column_type[i] == 1)
-		{
-			s = ft_strjoin(s, ", ");
-			s = ft_strjoin(s, ft_itoa(table->column_length[i]));
-		}
-		s = ft_strjoin(s, ")");
-		i++;
-	}
-	s = ft_strjoin(s, "]\n");
-	if (write(fd, s, ft_strlen(s)) == (ssize_t)ft_strlen(s))
-		printf("The %s table was successfully created.\n", table->name);
-	else
-		printf("There was an error creating the %s table.\n", table->name);
+    i = 0;
+    s = ft_strnew(0);
+    s = ft_strjoin(s, "[");
+    while (i < table->column_count)
+    {
+        s = (i > 0) ? ft_strjoin(s, ", (") : ft_strjoin(s, "(");
+        s = ft_strjoin(s, table->columns[i]);
+        s = ft_strjoin(s, ", ");
+        s = ft_strjoin(s, ft_itoa(table->column_type[i]));
+        if (table->column_type[i] == 1)
+        {
+            s = ft_strjoin(s, ", ");
+            s = ft_strjoin(s, ft_itoa(table->column_length[i]));
+        }
+        s = ft_strjoin(s, ")");
+        i++;
+    }
+    s = ft_strjoin(s, "]\n");
+    if (write(fd, s, ft_strlen(s)) == (ssize_t)ft_strlen(s))
+        printf("The %s table was successfully created.\n", table->name);
+    else
+        printf("There was an error creating the %s table.\n", table->name);
 }
 
-void	create_table(t_apple *apple)
+void    create_table(t_apple *apple)
 {
-	char	*create_file;
-	int		fd;
+    char    *create_file;
+    int     fd;
 
-	create_file = ft_strnew(0);
+    create_file = ft_strnew(0);
 	create_file = ft_strjoin(apple->db_name, "/");
-	create_file = ft_strjoin(create_file, apple->table->name);
-	if (access(create_file, F_OK) != -1)
+    create_file = ft_strjoin(create_file, apple->table->name);
+    if (access(create_file, F_OK) != -1)
 		printf("A table already exists with the name %s.\n", apple->table->name);
 	else if (apple->table->column_count == 0)
 		printf("Invalid table format. Needs at least 1 column.\n");
 	else
 	{
 		fd = open(create_file, O_CREAT | O_WRONLY, 0744);
-		write_to_table(apple->table, fd);
-		close(fd);
+    	write_to_table(apple->table, fd);
+    	close(fd);
 	}
 }
 
-int		parse_table(char *line, t_table *table)
+int 	parse_table(char *line, t_table *table)
 {
 	int		ret;
 
@@ -171,8 +200,8 @@ int		parse_table(char *line, t_table *table)
 		if (ret == -1)
 			return (-1);
 		return (1);
-	}
-	return (-1);
+    }
+    return (-1);
 }
 
 void	create_query(char *line, t_apple *apple)
@@ -229,10 +258,10 @@ char	*end_int(char *line)
 	return (NULL);
 }
 
-void	parse_table_header(char *file, t_table *table)
+void    parse_table_header(char *file, t_table *table)
 {
-	int		fd;
-	char	*line;
+	int     fd;
+	char    *line;
 
 	table->column_count = 0;
 	fd = open(file, O_RDONLY);
@@ -243,9 +272,11 @@ void	parse_table_header(char *file, t_table *table)
 		{
 			table->column_type = ft_realloc_int(table->column_type, table->column_count);
 			table->column_length = ft_realloc_int(table->column_length, table->column_count);
-			table->column_type[table->column_count] = ft_colfind(line, 2);
+			table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
+			table->columns[table->column_count] = parse_col_char(line, 1);
+			table->column_type[table->column_count] = parse_col_int(line, 2);
 			if (table->column_type[table->column_count] == 1)
-				table->column_length[table->column_count] = ft_colfind(line, 3);
+				table->column_length[table->column_count] = parse_col_int(line, 3);
 			table->column_count++;
 		}
 		line++;
@@ -267,6 +298,7 @@ int		open_table(char *table, t_apple *apple)
 		path = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(table) + 2);
 		path = ft_strjoin(apple->db_name, "/");
 		path = ft_strjoin(path, table);
+		printf("path: %s\n", path);
 		fd = open(path, O_RDONLY);
 	}
 	return (fd);
@@ -274,7 +306,7 @@ int		open_table(char *table, t_apple *apple)
 
 void	enter_database(char *line, t_apple *apple)
 {
-	DIR		*dir;
+	DIR     *dir;
 
 	if (ft_strequ(ft_strupper(ft_strfind(line, 2)), "DATABASE")
 			|| ft_strequ(ft_strupper(ft_strfind(line, 2)), "DB"))
@@ -304,7 +336,7 @@ void	read_input(t_apple *apple)
 		while (line[i] != '\0')
 		{
 			if (line[i] == '\33')
-				if (line[i + 2] == 'A')
+				if (line[i+2] == 'A')
 				{
 					printf("%s\n", prev);
 					line = prev;
@@ -312,11 +344,13 @@ void	read_input(t_apple *apple)
 			i++;
 		}
 		if (ft_strequ(ft_strfind(line, 1), "\027[A"))
-			printf("%s\n", line);
+			printf("%s\n",line);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "CREATE"))
 			create_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "INSERT"))
 			insert_query(line, apple);
+        if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "UPDATE"))
+			update_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DELETE"))
 			delete_query(line, apple);
 		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DROP"))
@@ -330,16 +364,16 @@ void	read_input(t_apple *apple)
 		{
 			printf("Thank you for using STDB\n");
 			exit(1);
-		}
-		prev = ft_strnew(ft_strlen(line) + 1);
-		prev = line;
+    	}
+    	prev = ft_strnew(ft_strlen(line) + 1);
+    	prev = line;
 	}
 }
 
-int		main(void)
+int		main()
 {
 	t_apple	*apple;
-
+	
 	apple = (t_apple *)ft_memalloc(sizeof(apple));
 	read_input(apple);
 }

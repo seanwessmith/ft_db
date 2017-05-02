@@ -16,6 +16,8 @@
 # include <sys/stat.h>
 # include <sys/types.h>
 
+int     parse_col_int(char *input, int w_ct);
+char    *parse_col_char(char *input, int w_ct);
 char	*end_string(char *line);
 char	*end_int(char *line);
 char	*ft_strfind(char *input, int w_count);

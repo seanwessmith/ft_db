@@ -86,6 +86,7 @@ typedef struct		s_algo {
 	va_list			ap;
 }					t_algo;
 
+void                update_query(char *line, t_apple *apple);
 char				*ft_strcstr(const char *s, int c, int c2);
 int					*ft_realloc_int(int *ptr, size_t size);
 int					*ft_intrealloc(int *arr, size_t size);
