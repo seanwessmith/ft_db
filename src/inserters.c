@@ -143,8 +143,9 @@ void	insert_query(char *line, t_apple *apple)
 		file = ft_strjoin(file, apple->table->name);
 		if (access(file, F_OK) != -1)
 		{
-			parse_table_header(file, apple->table);
-			if (parse_insert(line, file, apple->table) == 1)
+			if (parse_table_header(file, apple->table) == -1)
+				printf("Records were NOT inserted. Incorrect query format.\n");
+			else if (parse_insert(line, file, apple->table) == 1)
 				printf("Records were successfully inserted into the %s table.\n", apple->table->name);
 			else
 				printf("Records were NOT inserted. Incorrect query format.\n");

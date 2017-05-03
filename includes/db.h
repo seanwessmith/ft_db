@@ -16,16 +16,16 @@
 # include <sys/stat.h>
 # include <sys/types.h>
 
-int     parse_col_int(char *input, int w_ct);
-char    *parse_col_char(char *input, int w_ct);
+int		parse_col_int(char *input, int w_ct);
+char	*parse_col_char(char *input, int w_ct);
 char	*end_string(char *line);
 char	*end_int(char *line);
 char	*ft_strfind(char *input, int w_count);
 void	select_all_from_table(char *table, t_apple *apple);
 void	select_columns_from_table(char *line, t_apple *apple);
-void    parse_table_header(char *file, t_table *table);
+int		parse_table_header(char *file, t_table *table);
 int		parse_insert(char *line, char *file, t_table *table);
-char    *parse_insert_record(char *line, t_table *table);
+char	*parse_insert_record(char *line, t_table *table);
 char	*next_word(char *line);
 int		open_table(char *table, t_apple *apple);
 int		drop_table(char *line, t_apple *apple);

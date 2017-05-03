@@ -90,7 +90,7 @@ int		parse_col_type(char *type)
 	if (ft_strncmp(type, "int", 3) == 0)
 		return (2);
 	else
-		printf("Column type %s is invalid.", ft_strcstr(type, '(', ','));
+		printf("Column type %s is invalid. ", ft_strcstr(type, '(', ','));
 	return (-1);
 }
 
@@ -115,6 +115,8 @@ int		parse_columns(char **line, t_table *table)
 	table->column_type = ft_realloc_int(table->column_type, table->column_count);
 	table->column_length = ft_realloc_int(table->column_length, table->column_count);
 	table->columns[table->column_count] = ft_strfind(*(line), 1);
+	if (ft_strisalpha(table->columns[table->column_count]) != 1)
+		return (-1);
 	table->column_length[table->column_count] = parse_col_length(ft_strfind(*(line), 2));
 	if ((table->column_type[table->column_count] = parse_col_type(ft_strfind(*line, 2))) == -1)
 		return (-1);
@@ -122,10 +124,7 @@ int		parse_columns(char **line, t_table *table)
 	while (*(*line))
 	{
 		if (*(*line) == ',')
-		{
-			(*line)++;
-			return (1);
-		}
+			return (*(*line)++);
 		(*line)++;
 	}
 	return (0);
@@ -187,15 +186,16 @@ int 	parse_table(char *line, t_table *table)
 	ret = 0;
 	if (access(ft_strfind(line, 3), F_OK) == -1)
 	{
-		ft_strfind(line, 3);
 		table->column_count = 0;
 		table->name = ft_strcstr(ft_strfind(line, 3), '\0', '(');
+		if (table->name[0] == '\0')
+			return (-1);
 		table->columns = (char **)ft_memalloc(sizeof(char *));
 		table->columns[0] = (char *)ft_memalloc(sizeof(char));
 		while (*line && *line != '(')
 			line++;
 		line++;
-		while (*line && (ret = parse_columns(&line, table)) == 1)
+		while (*line && (ret = parse_columns(&line, table)) > 0)
 			table->columns = ft_dbrealloc_chr(table->columns, table->column_count);
 		if (ret == -1)
 			return (-1);
@@ -258,7 +258,7 @@ char	*end_int(char *line)
 	return (NULL);
 }
 
-void    parse_table_header(char *file, t_table *table)
+int		parse_table_header(char *file, t_table *table)
 {
 	int		fd;
 	char	*line;
@@ -266,6 +266,7 @@ void    parse_table_header(char *file, t_table *table)
 	table->column_count = 0;
 	fd = open(file, O_RDONLY);
 	get_next_line(fd, &line);
+	printf("hello\n");
 	while (*line && *line != ']')
 	{
 		if (*line == '(')
@@ -279,8 +280,11 @@ void    parse_table_header(char *file, t_table *table)
 				table->column_length[table->column_count] = parse_col_int(line, 3);
 			table->column_count++;
 		}
+		if (*line != ' ' && *line != ',')
+			return (-1);
 		line++;
 	}
+	return (1);
 }
 
 int		open_table(char *table, t_apple *apple)
@@ -298,7 +302,6 @@ int		open_table(char *table, t_apple *apple)
 		path = ft_strnew(ft_strlen(apple->db_name) + ft_strlen(table) + 2);
 		path = ft_strjoin(apple->db_name, "/");
 		path = ft_strjoin(path, table);
-		printf("path: %s\n", path);
 		fd = open(path, O_RDONLY);
 	}
 	return (fd);

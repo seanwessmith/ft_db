@@ -16,7 +16,7 @@ int		ft_strisalpha(char *str)
 {
 	while (*str != '\0')
 	{
-		if ((*str <= 65 && *str >= 90) || (*str <= 97 && *str >= 122))
+		if ((*str < 'A' || *str > 'Z') && (*str < 'a' || *str > 'z'))
 			return (0);
 		str++;
 	}
