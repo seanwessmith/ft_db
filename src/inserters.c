@@ -89,11 +89,28 @@ char	*parse_insert_record(char *line, t_table *table)
 	return (ret);
 }
 
+char	*parse_file(char *line)
+{
+	char	*gnl;
+	char	*ret;
+	char	*filename;
+	int		fd;
+
+	filename = ft_strfind(line, 6);
+	fd = open(filename, O_RDONLY);
+	ret = ft_strnew(0);
+	while (get_next_line(fd, &gnl))
+		ret = ft_strjoin(ret, gnl);
+	return (ret);
+}
+
 int		parse_insert(char *line, char *file, t_table *table)
 {
 	int		fd;
 	char	*s;
 
+	if (ft_strequ(ft_strfind(line, 5), "file"))
+		line = parse_file(line);
 	fd = open(file, O_WRONLY | O_APPEND);
 	while (*line)
 	{

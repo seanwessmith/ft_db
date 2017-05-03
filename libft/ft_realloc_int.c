@@ -18,7 +18,7 @@ int		*ft_realloc_int(int *ptr, size_t size)
 	int		*ret;
 
 	i = 0;
-	if (ptr)
+	if (ptr && size != 0)
 		ret = (int *)ft_memalloc(sizeof(int) * size);
 	else
 		ret = (int *)ft_memalloc(sizeof(int));
@@ -27,7 +27,7 @@ int		*ft_realloc_int(int *ptr, size_t size)
 		ret[i] = ptr[i];
 		i++;
 	}
-	if (ptr)
+	if (ptr && size != 0)
 		free(ptr);
 	return (ret);
 }

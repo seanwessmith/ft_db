@@ -345,26 +345,28 @@ void	read_input(t_apple *apple)
 		}
 		if (ft_strequ(ft_strfind(line, 1), "\027[A"))
 			printf("%s\n",line);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "CREATE"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "CREATE"))
 			create_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "INSERT"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "INSERT"))
 			insert_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "UPDATE"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "UPDATE"))
 			update_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DELETE"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DELETE"))
 			delete_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DROP"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "DROP"))
 			drop_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "SELECT"))
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "SELECT"))
 			select_query(line, apple);
-		if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "ENTER") ||
+		else if (ft_strequ(ft_strupper(ft_strfind(line, 1)), "ENTER") ||
 				ft_strequ(ft_strupper(ft_strfind(line, 1)), "CD"))
 			enter_database(line, apple);
-		if (ft_strequ(ft_strupper(line), "EXIT"))
+		else if (ft_strequ(ft_strupper(line), "EXIT"))
 		{
 			printf("Thank you for using STDB\n");
 			exit(1);
 		}
+		else
+			printf("Incorrect query.\n");
 		prev = ft_strnew(ft_strlen(line) + 1);
 		prev = line;
 	}
