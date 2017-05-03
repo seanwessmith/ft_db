@@ -57,7 +57,7 @@ int     *update_column_nums(char *line, char ***values, t_table *table)
     return (cols);
 }
 
-char    *line_builder(char *line, int *cols, t_table *table)
+char    *line_builder(char *line, char **values, int *cols, t_table *table)
 {
     int     i;
     char    *str;
@@ -68,7 +68,7 @@ char    *line_builder(char *line, int *cols, t_table *table)
     {
         str = (i == 0) ? str : ft_strjoin(str, ", (");
         if (cols[i] == 1)
-            str = ft_strjoin(str, "NULL");
+            str = ft_strjoin(str, values[i]);
         if (table->column_type[i] == 1 && !cols[i])
             str = ft_strjoin(str, parse_col_char(line, i + 1));
         if (table->column_type[i] == 2 && !cols[i])
@@ -80,7 +80,7 @@ char    *line_builder(char *line, int *cols, t_table *table)
     return (str);
 }
 
-void    run_update(int *cols, char *file, t_table *table)
+void    run_update(int *cols, char **values, char *file, t_table *table)
 {
     int     i;
     int		j;
@@ -98,7 +98,7 @@ void    run_update(int *cols, char *file, t_table *table)
     while ((num = get_next_line(fd, &line)))
     {
         new_file = ft_dbrealloc_chr(new_file, i);
-        new_file[i] = line_builder(line, cols, table);
+        new_file[i] = line_builder(line, values, cols, table);
         i++;
     }
     close(fd);
@@ -131,7 +131,7 @@ void    update_query(char *line, t_apple *apple)
             parse_table_header(file, apple->table);
             cols = update_column_nums(line, &values, apple->table);
             close(fd);
-			run_update(cols, file, apple->table);
+			run_update(cols, values, file, apple->table);
             printf("done!\n");
         }
         else
