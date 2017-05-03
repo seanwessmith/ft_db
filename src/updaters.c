@@ -29,7 +29,6 @@ char    *find_value(char *line, char *find)
         i++;
     }
     value[i] = '\0';
-	write(1, "eA\n", 3);
     return (value);
 }
 
@@ -55,7 +54,6 @@ int     *update_column_nums(char *line, char ***values, t_table *table)
             cols[i] = 0;
         i++;
     }
-	write(1, "eB\n", 3);
     return (cols);
 }
 
@@ -78,41 +76,40 @@ char    *line_builder(char *line, int *cols, t_table *table)
         str = ft_strjoin(str, ")");
         i++;
     }
-    str = ft_strjoin(str, "]");
-	write(1, "eC\n", 3);
-    return (NULL);
+    str = ft_strjoin(str, "]\n");
+    return (str);
 }
 
-void    run_update(int *cols, int fd, char *file, t_table *table)
+void    run_update(int *cols, char *file, t_table *table)
 {
     int     i;
-    int     j;
-    char    *line;
+    int		j;
+	char    *line;
     char    **new_file;
+	int		fd;
 	int		num;
 
     i = 0;
     new_file = NULL;
-    while ((num = get_next_line(fd, &line)) > 0)
+	fd = open(file, O_RDONLY);
+	new_file = ft_dbrealloc_chr(new_file, i);
+    get_next_line(fd, &line);
+	new_file[i++] = ft_strjoin(line, "\n");
+    while ((num = get_next_line(fd, &line)))
     {
         new_file = ft_dbrealloc_chr(new_file, i);
         new_file[i] = line_builder(line, cols, table);
         i++;
-        free(line);
-		write(1, "loop\n", 5);
     }
-	printf("end gnl\n");
-    j = -1;
     close(fd);
-    if ((fd = open(file, O_WRONLY) > 0) > 0)
-    {
-		printf("fd = %d\n", fd);
-        while (j++ < i)
-            write(fd, new_file[j], ft_strlen(new_file[j]));
-    }
-	else
-		printf("BAD fd = %d\n", fd);
-    printf("The %s table has been updated.\n", table->name);
+    j = -1;
+	remove(file);
+	if ((fd = open(file, O_CREAT | O_WRONLY, 0744)) > 0)
+	{
+		while (++j < i)
+			write(fd, new_file[j], ft_strlen(new_file[j]));
+		printf("The %s table has been updated.\n", table->name);
+	}
 }
 
 void    update_query(char *line, t_apple *apple)
@@ -129,11 +126,12 @@ void    update_query(char *line, t_apple *apple)
         file = ft_strnew(0);
         file = ft_strjoin(apple->db_name, "/");
         file = ft_strjoin(file, apple->table->name);
-        if ((fd = open(file, O_RDONLY) != -1))
+        if ((fd = open(file, O_RDONLY)) != -1)
         {
             parse_table_header(file, apple->table);
             cols = update_column_nums(line, &values, apple->table);
-            run_update(cols, fd, file, apple->table);
+            close(fd);
+			run_update(cols, file, apple->table);
             printf("done!\n");
         }
         else
