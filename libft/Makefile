@@ -121,6 +121,10 @@ C_FILES += ft_strisdigit.c \
 		   ft_realloc_int.c \
 		   ft_strcstr.c \
            ft_realloc.c \
+		   ft_randint.c \
+		   ft_rand.c \
+		   ft_hash.c \
+		   ft_nbrlen.c \
 
 # get_next_line
 C_FILES += get_next_line.c \

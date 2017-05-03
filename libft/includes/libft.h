@@ -86,6 +86,10 @@ typedef struct		s_algo {
 	va_list			ap;
 }					t_algo;
 
+int					ft_nbrlen(int nbr);
+uintmax_t			ft_hash(uintmax_t x);
+uintmax_t			ft_rand(void);
+uintmax_t			ft_randint(int length);
 void                *ft_realloc2(void *src, size_t srcsize, size_t newsize);
 char                *ft_realloc(char *ptr, size_t size);
 void                update_query(char *line, t_apple *apple);
